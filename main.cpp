@@ -82,7 +82,7 @@ int main(int argc, char** argv)
 
 			case 0x2000:
 				stack[sp++] = pc;
-				pc = opcode 0x0FFF;
+				pc = opcode & 0x0FFF;
 			break;	
 
 			case 0x3000:
