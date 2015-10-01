@@ -5,7 +5,7 @@
 //Current opcode
 unsigned short opcode;
 
-//Memoery & Registers
+//Memory & Registers
 #define MEM_SIZE 4096
 unsigned char mem[MEM_SIZE];
 #define REG_SIZE 16
@@ -32,6 +32,9 @@ unsigned short sp;
 //Keyboard State
 unsigned char keyboard[16];
 
+//Draw flag
+unsigned char drawFlag;
+
 void wrong_opcode(unsigned short op)
 {
 	printf("Puto opcode esta puto mal: 0x%X\n", op);
@@ -52,20 +55,51 @@ int main(int argc, char** argv)
 
 	while(1)
 	{
+		drawFlag = 0;
+
 		//Read opcode
-		opcode = mem[pc++] << 8 | mem[pc+1];
+		opcode = mem[pc] << 8 | mem[pc+1];
+		pc += 2;
 
 		switch (opcode & 0xF000)
 		{
 
 			case 0x0000:
 				if ((opcode | 0x00E0) == 0x00E0) 
-					memset(gfx, 0, GFX_SIZE);
+				{
+					memset(gfx, 0, GFX_SIZE); //CLS
+					drawFlag = 1;
+				}
 				else if ((opcode | 0x00EE) == 0x00EE) 
-					pc = stack[sp--];
+					pc = stack[sp--]; //RET
 				else
 					wrong_opcode(opcode);
 			break;	
+
+			case 0x1000:
+				pc = opcode & 0x0FFF;
+			break;
+
+			case 0x2000:
+				stack[sp++] = pc;
+				pc = opcode 0x0FFF;
+			break;	
+
+			case 0x3000:
+				pc += (V[(opcode&0x0F00)>>8] == opcode&0x00FF)? 2:0;			
+			break;
+
+			case 0x4000:
+				pc += (V[(opcode&0x0F00)>>8] == opcode&0x00FF)? 0:2;				
+			break;
+
+			case 0x5000:
+				pc += (V[(opcode&0x0F00)>>8] == (V[opcode&0x00F0]>>4))? 2:0;		
+			break;	
+
+			case 0x6000:
+				V[(opcode & 0x0F00) >> 8] = opcode & 0x00FF;
+			break;
 
 			default:
 					wrong_opcode(opcode);
