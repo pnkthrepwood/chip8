@@ -19,7 +19,7 @@ unsigned short pc;
 #define GFX_H 64
 #define GFX_V 32
 #define GFX_SIZE GFX_H*GFX_V
-unsigned char gfx[GFX_H * GFX_V];
+unsigned char gfx[GFX_SIZE];
 
 //General timers
 unsigned char timer_delay;
@@ -99,6 +99,57 @@ int main(int argc, char** argv)
 
 			case 0x6000:
 				V[(opcode & 0x0F00) >> 8] = opcode & 0x00FF;
+			break;
+
+			case 0x7000:
+				V[(opcode & 0x0F00) >> 8] += opcode & 0x00FF;
+			break;
+
+			case 0x8000:
+
+				unsigned char x = (opcode&0x0F00) >> 8;
+				unsigned char y = (opcode&0x00F0) >> 4;
+
+				switch(opcode&0x000F)
+				{
+					case 0x0: //Vx = Vy
+						V[x] = V[y];
+					break;
+					
+					case 0x1:
+						V[x] = V[x] | V[y];	
+					break;
+
+					case 0x2:
+						V[x] = V[x] & V[y];		
+					break;
+					
+					case 0x3:
+						V[x] = V[x] ^ V[y];	
+					break;
+
+					case 0x4:
+						//todo: vx = vx + vy, vf = carry
+					break;
+
+					case 0x5:
+						
+					break;
+
+					case 0x6:
+					break;
+
+					case 0x7:
+					break;
+
+					case 0xE:
+					break;
+				}
+
+			break;
+
+			case 0x9000:
+				
 			break;
 
 			default:
