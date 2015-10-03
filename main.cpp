@@ -61,6 +61,9 @@ int main(int argc, char** argv)
 		opcode = mem[pc] << 8 | mem[pc+1];
 		pc += 2;
 
+		unsigned char x = (opcode&0x0F00) >> 8;
+		unsigned char y = (opcode&0x00F0) >> 4;
+
 		switch (opcode & 0xF000)
 		{
 
@@ -86,29 +89,27 @@ int main(int argc, char** argv)
 			break;	
 
 			case 0x3000:
-				pc += (V[(opcode&0x0F00)>>8] == opcode&0x00FF)? 2:0;			
+				pc += (V[x] == opcode&0x00FF)? 2:0;			
 			break;
 
 			case 0x4000:
-				pc += (V[(opcode&0x0F00)>>8] == opcode&0x00FF)? 0:2;				
+				pc += (V[x] == opcode&0x00FF)? 0:2;				
 			break;
 
 			case 0x5000:
-				pc += (V[(opcode&0x0F00)>>8] == (V[opcode&0x00F0]>>4))? 2:0;		
+				pc += (V[x] == (V[y]))? 2:0;		
 			break;	
 
 			case 0x6000:
-				V[(opcode & 0x0F00) >> 8] = opcode & 0x00FF;
+				V[x] = opcode & 0x00FF;
 			break;
 
 			case 0x7000:
-				V[(opcode & 0x0F00) >> 8] += opcode & 0x00FF;
+				V[x] += opcode & 0x00FF;
 			break;
 
 			case 0x8000:
 
-				unsigned char x = (opcode&0x0F00) >> 8;
-				unsigned char y = (opcode&0x00F0) >> 4;
 
 				switch(opcode&0x000F)
 				{
@@ -129,27 +130,57 @@ int main(int argc, char** argv)
 					break;
 
 					case 0x4:
-						//todo: vx = vx + vy, vf = carry
+						V[0xF] = (V[x] + V[y] > 255) ? 1 : 0;
+						V[x] += V[y]; 
 					break;
 
 					case 0x5:
-						
+						V[0xF] = V[x] > V[y] ? 1 : 0;
+						V[x] -= V[y];
 					break;
 
 					case 0x6:
+						V[0xF] = V[x] & 1;
+						V[x] = V[x] >> 1;
 					break;
 
 					case 0x7:
+						V[0xF] = V[y] > V[x] ? 1 : 0;
+						V[y] -= V[x];	
 					break;
 
 					case 0xE:
+						V[0xF] = V[x] & 0x8;
+						V[x] = V[x] << 1;
 					break;
 				}
 
 			break;
 
 			case 0x9000:
+				pc += (V[x] != V[y]) ? 2 : 0;
+			break;
+
+			case 0xA000:
+				I = opcode&0xFFF;
+			break;
+
+			case 0xB000:
+				pc = opcode&0xFFF + V[0];
+			break;
+
+			case 0xC000:
+				V[x] = (rand()%0xFF) & (opcode&0xFF);
+			break;
+
+			case 0xD000:
 				
+			break;
+
+			case 0xE000:
+			break;
+
+			case 0xF000:
 			break;
 
 			default:
