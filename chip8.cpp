@@ -55,11 +55,11 @@ void chip8::cycle()
 
 	//Read opcode
 	opcode = mem[pc] << 8 | mem[pc+1];
-	pc += 2;
-
-	if (pc >= 0x300) pc = 0x200;
 
 	printf("> Executing instruction: 0x%X\n", opcode);
+	printf("\tat location 0x%X\n", pc);
+
+	pc += 2;
 
 	unsigned char x = (opcode&0x0F00) >> 8;
 	unsigned char y = (opcode&0x00F0) >> 4;
