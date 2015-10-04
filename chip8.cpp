@@ -34,7 +34,7 @@ void chip8::init()
 {
 	memset(mem, 0, MEM_SIZE);
 	memset(V,   0, REG_SIZE);
-	memset(gfx, 0, GFX_SIZE);
+	memset(gfx, 0, SCR_SIZE);
 	memset(key, 0, KEY_SIZE);
 
 	opcode = 0;
@@ -70,7 +70,7 @@ void chip8::cycle()
 		case 0x0000:
 			if ((opcode | 0x00E0) == 0x00E0) 
 			{
-				memset(gfx, 0, GFX_SIZE); //CLS
+				memset(gfx, 0, SCR_SIZE); //CLS
 				drawFlag = 1;
 			}
 			else if ((opcode | 0x00EE) == 0x00EE) 
@@ -171,7 +171,30 @@ void chip8::cycle()
 		break;
 
 		case 0xD000:
-			//TODO: draw
+		{
+
+
+			unsigned short height = opcode&0x000F;
+			unsigned short pixel;
+
+			V[0xF] = 0;
+			for (int y_pos = 0; y_pos < height; ++y_pos)
+			{
+				pixel = mem[I+y_pos];
+				for (int x_pos = 0; x_pos < 8; ++x_pos)
+				{
+					if ((pixel & (0x80 >> x_pos)) != 0)
+			      	{
+				        if(gfx[(x+x_pos + ((y+y_pos)*64))] == 1)
+				          V[0xF] = 1;
+
+				        gfx[x+x_pos + ((y+y_pos)*64)] ^= 1;
+			      	}
+				}
+			}
+
+			drawFlag = 1;
+			}
 		break;
 
 		case 0xE000:
@@ -185,6 +208,10 @@ void chip8::cycle()
 				case 0xA1:
 					pc += key[V[x]]?0:2;
 				break;
+
+				default:
+					wrong_opcode(opcode);
+				break;
 			}
 
 		break;
@@ -197,7 +224,11 @@ void chip8::cycle()
 				break;
 
 				case 0x0A:
-					//TODO: keypress
+				{
+					char c;
+					printf("> Reading key...");
+					scanf("%d", &c);
+				}
 				break;	
 
 				case 0x15:
@@ -228,6 +259,10 @@ void chip8::cycle()
 
 				case 0x65:
 					memcpy(V, &mem[I], x);
+				break;
+
+				default:
+					wrong_opcode(opcode);
 				break;
 			}
 		break;
