@@ -2,8 +2,8 @@
 #define MEM_SIZE 4096
 #define REG_SIZE 16
 
-#define SCR_H 64
-#define SCR_W 32
+#define SCR_H 32
+#define SCR_W 64
 #define SCR_SIZE SCR_H*SCR_W
 
 #define STACK_SIZE 16
@@ -36,4 +36,7 @@ struct chip8
 	void init();
 	void load(char* rom_name);
 	void cycle();
+
+	bool dbg_mode;
+
 };

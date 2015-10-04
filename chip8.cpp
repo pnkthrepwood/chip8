@@ -1,3 +1,4 @@
+#include <iostream>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h> 
@@ -41,6 +42,12 @@ void chip8::init()
 	pc = 0x200;
 	sp = 0;	
 	I = 0;
+
+	memcpy(mem, chip8_fontset, 80*2);
+
+	drawFlag = true;
+
+	dbg_mode = false;
 }
 
 void chip8::load(char* rom_name)
@@ -63,14 +70,47 @@ void chip8::cycle()
 	//Read opcode
 	opcode = mem[pc] << 8 | mem[pc+1];
 
+	//Debug stuff
 	printf("> Executing instruction: 0x%X", opcode);
 	printf("\tat location 0x%X\n", pc);
 
-	pc += 2;
+	for (int i = 0; i <= 0xF; i++)
+	{
+		printf("V[%X] %X\t", i, V[i]);
+		if (i == 7) printf("\n");
+	}
+	printf("\n");
+	printf("I: %X\n", I);
+	printf("pc: %X\n", pc);
+	
+	printf("...\n");
+		
+	for (int i = -10, j = 0; i <= 10; i +=2, j++)
+	{
+		unsigned short m = (mem[pc+i] << 8) | mem[pc+i+1];
+		if (i == 0) printf("->");
+		printf("\t0x%X: %x\t", pc+i, m);
 
+
+		if (sp == j) printf("*");
+		printf("S[%d]: %X\n", j, stack[j]);
+	}
+	printf("...\n");
+
+	char c;
+	if (dbg_mode) std::cin >> c;
+	
+
+	//Las things
+	pc += 2;
+	if (timer_delay > 0) timer_delay--;
+	if (timer_sound > 0) timer_sound--;
+	if (timer_sound == 1) printf("<LE SOUND>\n");
+	
+
+	//Opcode stuff
 	unsigned char x = (opcode&0x0F00) >> 8;
 	unsigned char y = (opcode&0x00F0) >> 4;
-
 	switch (opcode & 0xF000)
 	{
 
@@ -81,7 +121,7 @@ void chip8::cycle()
 				drawFlag = 1;
 			}
 			else if ((opcode | 0x00EE) == 0x00EE) 
-				pc = stack[sp--]; //RET
+				pc = stack[--sp]; //RET
 			else
 				wrong_opcode(opcode);
 		break;	
@@ -96,11 +136,17 @@ void chip8::cycle()
 		break;	
 
 		case 0x3000:
-			pc += (V[x] == opcode&0x00FF)? 2:0;			
+			printf("V[%X],%x\n",x,V[x]);
+			printf("%X\n",opcode&0x00FF);
+		
+			if (V[x] == (opcode&0x00FF)) pc += 2;			
+
+			printf("?%d\n", (V[x] == opcode&0x00FF)? 2:0);			
+			printf("pc: %X\n\n", pc);
 		break;
 
 		case 0x4000:
-			pc += (V[x] == opcode&0x00FF)? 0:2;				
+			pc += (V[x] == (opcode&0x00FF))? 0:2;				
 		break;
 
 		case 0x5000:
@@ -135,12 +181,12 @@ void chip8::cycle()
 				break;
 
 				case 0x4:
-					V[0xF] = (V[x] + V[y] > 255) ? 1 : 0;
+					V[0xF] = ((V[x] + V[y]) > 255) ? 1 : 0;
 					V[x] += V[y]; 
 				break;
 
 				case 0x5:
-					V[0xF] = V[x] > V[y] ? 1 : 0;
+					V[0xF] = (V[x] > V[y]) ? 1 : 0;
 					V[x] -= V[y];
 				break;
 
@@ -150,7 +196,7 @@ void chip8::cycle()
 				break;
 
 				case 0x7:
-					V[0xF] = V[y] > V[x] ? 1 : 0;
+					V[0xF] = (V[y] > V[x]) ? 1 : 0;
 					V[y] -= V[x];	
 				break;
 
@@ -179,16 +225,16 @@ void chip8::cycle()
 
 		case 0xD000:
 		{
-
-
 			unsigned short height = opcode&0x000F;
 			unsigned short pixel;
 
 			V[0xF] = 0;
-			for (int y_pos = 0; y_pos < height; ++y_pos)
+			for (unsigned short y_pos = 0; y_pos < height; ++y_pos)
 			{
 				pixel = mem[I+y_pos];
-				for (int x_pos = 0; x_pos < 8; ++x_pos)
+				printf("mem[%X]: %x\t",(I+y_pos), mem[I+y_pos]);
+				printf("px: 0x%X \n", pixel);
+				for (unsigned short x_pos = 0; x_pos < 8; ++x_pos)
 				{
 					if ((pixel & (0x80 >> x_pos)) != 0)
 			      	{
@@ -197,7 +243,12 @@ void chip8::cycle()
 
 				        gfx[x+x_pos + ((y+y_pos)*64)] ^= 1;
 			      	}
+						printf("gfx[%d +%d]: %x\n", 
+								x+x_pos,
+								(y+y_pos),
+								gfx[x+x_pos+((y+y_pos)*64)]);
 				}
+				printf("\n");
 			}
 
 			drawFlag = 1;
@@ -242,12 +293,12 @@ void chip8::cycle()
 					timer_delay = V[x];
 				break;
 
-				case 0x018:
+				case 0x18:
 					timer_sound = V[x];
 				break;
 
 				case 0x1E:
-					I += V[x];
+					I = (I+V[x])&0xFFF;
 				break;
 
 				case 0x29:

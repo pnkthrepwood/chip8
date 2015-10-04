@@ -1,37 +1,54 @@
-#include <iostream>
 #include <unistd.h>
+#include <string.h>
 #include "chip8.h"
 chip8 cpu;
 
 #include <SFML/Graphics.hpp>
 
-int main() 
+int main(int argc, char** argv) 
 {
 
- 	sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
+ 	sf::RenderWindow window(sf::VideoMode(SCR_W*10, 
+										  SCR_H*10), 
+							"Chip8 \t--pnkThrepwood");
+
+	sf::RectangleShape shape;
+	shape.setSize(sf::Vector2f(10, 10));
+	shape.setFillColor(sf::Color::White);
 
 	cpu.init();
-	cpu.load("gaems\\PONG");
+	if (argc > 1) 
+	{
+		if (strcmp(argv[1], "-d") == 0) cpu.dbg_mode = true;
+	}
+	cpu.load("gaems/PONG");
 
 	while(1)
 	{
 		cpu.cycle();
 
-
-		for (int z = 0; z < 999; ++z) std::cout << std::endl;
-
 		if (cpu.drawFlag)
 		{
-			for (int i = 0; i < SCR_H; ++i)
+			window.clear();
+			for (int y = 0; y < SCR_H; ++y)
 			{
-				for (int j = 0; j < SCR_W; ++j)
+				for (int x = 0; x < SCR_W; ++x)
 				{
-					if(cpu.gfx[i*SCR_W + j] > 0) std::cout << "X";
-					else std::cout << ".";
-				}
-				std::cout << std::endl;
-			}
-		}
+					int pixel = cpu.gfx[x +y*64];
 
+					pixel?
+						shape.setFillColor(sf::Color::White):
+						shape.setFillColor(sf::Color::White);
+
+					shape.setPosition(0,0);//x*10, y*10);
+					window.draw(shape);
+				}
+			}
+			window.display();
+		}
+		
+		sf::Clock clock;
+		sf::Time dt;
+		while (clock.getElapsedTime().asSeconds() < 1.0f/60.0f);
 	}		
 }
