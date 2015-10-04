@@ -1,16 +1,24 @@
 #include <iostream>
-
+#include <unistd.h>
 #include "chip8.h"
 chip8 cpu;
 
-int main(int argc, char** argv) 
+#include <SFML/Graphics.hpp>
+
+int main() 
 {
+
+ 	sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
+
 	cpu.init();
-	cpu.load();
+	cpu.load("gaems\\PONG");
 
 	while(1)
 	{
 		cpu.cycle();
+
+
+		for (int z = 0; z < 999; ++z) std::cout << std::endl;
 
 		if (cpu.drawFlag)
 		{
@@ -18,7 +26,8 @@ int main(int argc, char** argv)
 			{
 				for (int j = 0; j < SCR_W; ++j)
 				{
-					std::cout << (cpu.gfx[i*SCR_H + j])?'*':' ';
+					if(cpu.gfx[i*SCR_W + j] > 0) std::cout << "X";
+					else std::cout << ".";
 				}
 				std::cout << std::endl;
 			}

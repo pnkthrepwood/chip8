@@ -43,9 +43,16 @@ void chip8::init()
 	I = 0;
 }
 
-void chip8::load()
+void chip8::load(char* rom_name)
 {
-	//TO-DO
+	FILE* rom = fopen(rom_name, "rb");
+	fseek(rom, 0L, SEEK_END);
+	long size = ftell(rom);
+	fseek(rom, 0L, SEEK_SET);
+
+	fread(&mem[I+0x200], size, 1, rom);
+
+	fclose(rom);
 }
 
 void chip8::cycle()
@@ -56,7 +63,7 @@ void chip8::cycle()
 	//Read opcode
 	opcode = mem[pc] << 8 | mem[pc+1];
 
-	printf("> Executing instruction: 0x%X\n", opcode);
+	printf("> Executing instruction: 0x%X", opcode);
 	printf("\tat location 0x%X\n", pc);
 
 	pc += 2;

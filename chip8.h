@@ -34,6 +34,6 @@ struct chip8
 
 	unsigned char drawFlag;
 	void init();
-	void load();
+	void load(char* rom_name);
 	void cycle();
 };
