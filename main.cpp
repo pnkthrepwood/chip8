@@ -21,7 +21,7 @@ int main(int argc, char** argv)
 	{
 		if (strcmp(argv[1], "-d") == 0) cpu.dbg_mode = true;
 	}
-	cpu.load("gaems/PONG");
+	cpu.load("gaems/MAZE");
 
 	while(1)
 	{
@@ -40,7 +40,7 @@ int main(int argc, char** argv)
 						shape.setFillColor(sf::Color::White):
 						shape.setFillColor(sf::Color::White);
 
-					shape.setPosition(0,0);//x*10, y*10);
+					shape.setPosition(x*10, y*10);
 					window.draw(shape);
 				}
 			}
