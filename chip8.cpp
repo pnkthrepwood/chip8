@@ -227,7 +227,7 @@ void chip8::cycle()
 				{
 					char c;
 					printf("> Reading key...");
-					scanf("%d", &c);
+					scanf("%c", &c);
 				}
 				break;	
 
