@@ -6,6 +6,76 @@ chip8 cpu;
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
+#include <iostream>
+#include <dirent.h>
+#include <stdio.h>
+
+using namespace std;
+
+int BIOS(int argc, char** argv)
+{
+
+	if (argc < 2) 
+	{
+		cout <<"Buenax, pica el -h si eres imbecil..."<<endl;
+		exit(0);
+	}
+
+	if (strcmp(argv[1], "-h") == 0)
+	{
+		cout << "LAS OPCIONES" << endl;
+		cout << "  -h\t\t\tTe muestra esta mierda" << endl;
+		cout << "  -lg -losgaems\t\tMira los juegacos"<<endl;
+		cout << "  -g  -gaem <juegal>\tCarga el <juegal>"<<endl;
+		exit(0);
+	}
+	
+	if (strcmp(argv[1], "-losgaems") == 0 || 
+		strcmp(argv[1], "-lg") == 0)
+	{
+		DIR *dir;
+		struct dirent *ent;
+		if ((dir = opendir ("./gaems")) != NULL) 
+		{
+			printf("Mira que juegacos:\n\n");
+
+		  /* print all the files and directories within directory */
+		  while ((ent = readdir (dir)) != NULL) 
+		  {
+			if (strcmp(ent->d_name, ".") != 0 &&
+				strcmp(ent->d_name, "..") != 0)
+		    printf ("\t* %s\n", ent->d_name);
+		  }
+	  	  closedir (dir);
+		
+			printf("Pica -gaem <juegal> para viciar.\n");
+		  exit(0);
+		} 
+		else 
+		{
+		  /* could not open directory */
+		  exit(0);
+		}
+		
+	}
+
+	if (strcmp(argv[1], "-gaem") == 0 || 
+		strcmp(argv[1], "-g") == 0)
+	{
+		if (argc < 3) 
+		{
+			printf("Pero pon el nombre del juego, colega.\n");
+			exit(0);
+		}
+
+		return 0x70AD;			
+	}
+
+	cout << "Pos va a ser siendo que nops." << endl;
+	exit(0);
+
+}
+
 void updateInput()
 {
 	//1 2 3 C
@@ -33,8 +103,12 @@ void updateInput()
 	cpu.key[0xB] = sf::Keyboard::isKeyPressed(sf::Keyboard::C);
 	cpu.key[0xF] = sf::Keyboard::isKeyPressed(sf::Keyboard::V);
 }
+
 int main(int argc, char** argv) 
 {
+
+	int b = BIOS(argc, argv);
+	char* rom = argv[2];
 
  	sf::RenderWindow window(sf::VideoMode(SCR_W*10, 
 										  SCR_H*10), 
@@ -44,12 +118,18 @@ int main(int argc, char** argv)
 	shape.setSize(sf::Vector2f(10, 10));
 	shape.setFillColor(sf::Color::White);
 
+
 	cpu.init();
 	if (argc > 1) 
 	{
 		if (strcmp(argv[1], "-d") == 0) cpu.dbg_mode = true;
 	}
-	cpu.load("gaems/PONG");
+
+	char gamepath[6+strlen(argv[2])+1];
+	strcpy(gamepath, "gaems/");
+	strcat(gamepath, argv[2]);
+
+	cpu.load(gamepath);
 
 	while(1)
 	{

@@ -92,7 +92,6 @@ void chip8::cycle()
 	unsigned char y = (opcode&0x00F0) >> 4;
 	switch (opcode & 0xF000)
 	{
-
 		case 0x0000:
 			if ((opcode | 0x00E0) == 0x00E0) 
 			{
