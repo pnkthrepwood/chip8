@@ -229,24 +229,24 @@ void chip8::cycle()
 			unsigned short pixel;
 
 			V[0xF] = 0;
-			for (unsigned short y_pos = 0; y_pos < height; ++y_pos)
+			for (unsigned short y_pos = 0; y_pos < height; y_pos++)
 			{
 				pixel = mem[I+y_pos];
 				printf("mem[%X]: %x\t",(I+y_pos), mem[I+y_pos]);
 				printf("px: 0x%X \n", pixel);
-				for (unsigned short x_pos = 0; x_pos < 8; ++x_pos)
+				for (unsigned short x_pos = 0; x_pos < 8; x_pos++)
 				{
 					if ((pixel & (0x80 >> x_pos)) != 0)
 			      	{
-				        if(gfx[(x+x_pos + ((y+y_pos)*64))] == 1)
+				        if(gfx[(V[x]+x_pos + ((V[y]+y_pos)*64))] == 1)
 				          V[0xF] = 1;
 
-				        gfx[x+x_pos + ((y+y_pos)*64)] ^= 1;
+				        gfx[V[x]+x_pos + ((V[y]+y_pos)*64)] ^= 1;
 			      	}
 						printf("gfx[%d +%d]: %x\n", 
-								x+x_pos,
-								(y+y_pos),
-								gfx[x+x_pos+((y+y_pos)*64)]);
+								V[x]+x_pos,
+								(V[y]+y_pos),
+								gfx[V[x]+x_pos+((V[y]+y_pos)*64)]);
 				}
 				printf("\n");
 			}
