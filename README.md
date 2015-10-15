@@ -1,6 +1,9 @@
 # chip8
 
-TUTORIALS AND THINGS
+Chip8 implementation for fun.
+Output screen made with SFML2.
+
+##TUTORIALS AND THINGS
 
 * http://www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/
 
@@ -8,7 +11,7 @@ TUTORIALS AND THINGS
 
 * http://www.multigesture.net/wp-content/uploads/mirror/zenogais/FunctionPointers.htm
 
-DISCLAIMER ABOUT GAEMS
+##DISCLAIMER ABOUT GAEMS
 
 All games provided where found around over the internet.
 
