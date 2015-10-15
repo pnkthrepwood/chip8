@@ -4,7 +4,35 @@
 chip8 cpu;
 
 #include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
 
+void updateInput()
+{
+	//1 2 3 C
+	//4 5 6 D
+	//7 8 9 E
+	//A 0 B F
+
+	cpu.key[0x1] = sf::Keyboard::isKeyPressed(sf::Keyboard::Num1);
+	cpu.key[0x2] = sf::Keyboard::isKeyPressed(sf::Keyboard::Num2);
+	cpu.key[0x3] = sf::Keyboard::isKeyPressed(sf::Keyboard::Num3);
+	cpu.key[0xC] = sf::Keyboard::isKeyPressed(sf::Keyboard::Num4);
+
+	cpu.key[0x4] = sf::Keyboard::isKeyPressed(sf::Keyboard::Q);
+	cpu.key[0x5] = sf::Keyboard::isKeyPressed(sf::Keyboard::W);
+	cpu.key[0x6] = sf::Keyboard::isKeyPressed(sf::Keyboard::E);
+	cpu.key[0xD] = sf::Keyboard::isKeyPressed(sf::Keyboard::R);
+
+	cpu.key[0x7] = sf::Keyboard::isKeyPressed(sf::Keyboard::A);
+	cpu.key[0x8] = sf::Keyboard::isKeyPressed(sf::Keyboard::S);
+	cpu.key[0x9] = sf::Keyboard::isKeyPressed(sf::Keyboard::D);
+	cpu.key[0xE] = sf::Keyboard::isKeyPressed(sf::Keyboard::F);
+
+	cpu.key[0xA] = sf::Keyboard::isKeyPressed(sf::Keyboard::Z);
+	cpu.key[0x0] = sf::Keyboard::isKeyPressed(sf::Keyboard::X);
+	cpu.key[0xB] = sf::Keyboard::isKeyPressed(sf::Keyboard::C);
+	cpu.key[0xF] = sf::Keyboard::isKeyPressed(sf::Keyboard::V);
+}
 int main(int argc, char** argv) 
 {
 
@@ -25,6 +53,7 @@ int main(int argc, char** argv)
 
 	while(1)
 	{
+		updateInput();
 		cpu.cycle();
 
 		if (cpu.drawFlag)
